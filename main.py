@@ -8,6 +8,19 @@ tickets_opened = False
 items_opened = False
 budget_opened = False
 add_route_window_opened = False
+add_ticket_window_opened = False
+
+# Функция для сохранения данных в JSON файл
+def save_data_to_json(data, filename):
+    with open(filename, "w") as file:
+        json.dump(data, file)
+
+# Функция для загрузки данных из JSON файла
+def load_data_from_json(filename):
+    if os.path.exists(filename):
+        with open(filename, "r") as file:
+            return json.load(file)
+    return []
 
 # Функция которая добавляет функционал кнопке "Маршруты"
 def open_routes():
@@ -22,12 +35,10 @@ def open_routes():
         routes_listbox = tk.Listbox(routes_window)
         routes_listbox.pack()
 
-        with open("routes.json", "r") as file:
-            routes = json.load(file)
-            for route in routes:
-                routes_listbox.insert(tk.END, f"{route['from']} - {route['to']}")
+        routes = load_data_from_json("data.json")  # Загрузка данных из файла
+        for route in routes:
+            routes_listbox.insert(tk.END, f"{route['from']} - {route['to']}")
 
-        # Функция которая добавляет функционал кнопке "Добавить маршруты"
         def add_route():
             global add_route_window_opened
             if not add_route_window_opened:
@@ -35,49 +46,35 @@ def open_routes():
                 add_route_window.title("Добавить маршрут")
                 add_route_window_opened = True
 
-            from_label = tk.Label(add_route_window, text="Откуда:")
-            from_label.pack()
+                from_label = tk.Label(add_route_window, text="Откуда:")
+                from_label.pack()
 
-            from_entry = tk.Entry(add_route_window)
-            from_entry.pack()
+                from_entry = tk.Entry(add_route_window)
+                from_entry.pack()
 
-            to_label = tk.Label(add_route_window, text="Куда:")
-            to_label.pack()
+                to_label = tk.Label(add_route_window, text="Куда:")
+                to_label.pack()
 
-            to_entry = tk.Entry(add_route_window)
-            to_entry.pack()
+                to_entry = tk.Entry(add_route_window)
+                to_entry.pack()
 
-            def save_route():
-                from_place = from_entry.get()
-                to_place = to_entry.get()
-                if from_place and to_place:
-                    route = {"from": from_place, "to": to_place}
-                    save_route_to_json(route)
-                    routes_listbox.insert(tk.END, f"{route['from']} - {route['to']}")
-                    add_route_window.destroy()
+                def save_route():
+                    from_place = from_entry.get()
+                    to_place = to_entry.get()
+                    if from_place and to_place:
+                        route = {"from": from_place, "to": to_place}
+                        routes.append(route)
+                        save_data_to_json(routes, "data.json")
+                        routes_listbox.insert(tk.END, f"{route['from']} - {route['to']}")
+                        add_route_window.destroy()
 
-            save_button = tk.Button(add_route_window, text="Сохранить", command=save_route)
-            save_button.pack()
+                save_button = tk.Button(add_route_window, text="Сохранить", command=save_route)
+                save_button.pack()
 
         add_button = tk.Button(routes_window, text="Добавить маршрут", command=add_route)
         add_button.pack()
 
         routes_opened = True
-
-# Функция которая создаёт файл .json
-def save_route_to_json(route):
-    global routes_opened
-    if not os.path.exists("routes.json"):
-        with open("routes.json", "w") as file:
-            json.dump([], file)
-
-    with open("routes.json", "r") as file:
-        routes = json.load(file)
-
-    routes.append(route)
-
-    with open("routes.json", "w") as file:
-        json.dump(routes, file)
 
 # Функция которая добавляет функционал кнопке "Билеты"
 def open_tickets():
@@ -86,7 +83,85 @@ def open_tickets():
         tickets_window = tk.Toplevel(root)
         tickets_window.title("Билеты")
 
+        tickets_label = tk.Label(tickets_window, text="Сохраненные билеты:")
+        tickets_label.pack()
 
+        tickets_listbox = tk.Listbox(tickets_window)
+        tickets_listbox.pack()
+
+        tickets = load_data_from_json("data.json")
+        for ticket in tickets:
+            tickets_listbox.insert(tk.END, f"Откуда: {ticket['from']} - Куда: {ticket['to']}")
+
+        def add_ticket():
+            global add_ticket_window_opened
+            if not add_ticket_window_opened:
+                add_ticket_window = tk.Toplevel(tickets_window)
+                add_ticket_window.title("Добавить билет")
+                add_ticket_window_opened = True
+
+                from_label = tk.Label(add_ticket_window, text="Откуда:")
+                from_label.pack()
+
+                from_entry = tk.Entry(add_ticket_window)
+                from_entry.pack()
+
+                to_label = tk.Label(add_ticket_window, text="Куда:")
+                to_label.pack()
+
+                to_entry = tk.Entry(add_ticket_window)
+                to_entry.pack()
+
+                time_label = tk.Label(add_ticket_window, text="Время:")
+                time_label.pack()
+
+                time_entry = tk.Entry(add_ticket_window)
+                time_entry.pack()
+
+                name_label = tk.Label(add_ticket_window, text="Имя:")
+                name_label.pack()
+
+                name_entry = tk.Entry(add_ticket_window)
+                name_entry.pack()
+
+                surname_label = tk.Label(add_ticket_window, text="Фамилия:")
+                surname_label.pack()
+
+                surname_entry = tk.Entry(add_ticket_window)
+                surname_entry.pack()
+
+                class_label = tk.Label(add_ticket_window, text="Класс:")
+                class_label.pack()
+
+                class_entry = tk.Entry(add_ticket_window)
+                class_entry.pack()
+
+                def save_ticket():
+                    from_place = from_entry.get()
+                    to_place = to_entry.get()
+                    ticket_time = time_entry.get()
+                    ticket_name = name_entry.get()
+                    ticket_surname = surname_entry.get()
+                    ticket_class = class_entry.get()
+                    if from_place and to_place and ticket_time and ticket_name and ticket_surname and ticket_class:
+                        ticket = {
+                            "from": from_place,
+                            "to": to_place,
+                            "time": ticket_time,
+                            "name": ticket_name,
+                            "surname": ticket_surname,
+                            "class": ticket_class
+                        }
+                        tickets.append(ticket)
+                        save_data_to_json(tickets, "data.json")
+                        tickets_listbox.insert(tk.END, f"Откуда: {ticket['from']} - Куда: {ticket['to']} - Время: {ticket['time']} - Имя: {ticket['name']} - Фамилия: {ticket['surname']} - Класс: {ticket['class']}")
+                        add_ticket_window.destroy()
+
+                save_button = tk.Button(add_ticket_window, text="Сохранить", command=save_ticket)
+                save_button.pack()
+
+        add_button = tk.Button(tickets_window, text="Добавить билет", command=add_ticket)
+        add_button.pack()
 
         tickets_opened = True
 
@@ -97,8 +172,6 @@ def open_items():
         items_window = tk.Toplevel(root)
         items_window.title("Список вещей")
 
-
-
         items_opened = True
 
 # Функция которая добавляет функционал кнопке "Бюджет"
@@ -108,9 +181,8 @@ def open_budget():
         budget_window = tk.Toplevel(root)
         budget_window.title("Бюджет")
 
-
-
         budget_opened = True
+
 # Функция которая добавляет функционал кнопке "Планирование поездки"
 def exit_program():
     root.quit()
@@ -118,12 +190,12 @@ def exit_program():
 root = tk.Tk()
 root.title("Планирование поездки")
 
-# Розмеры создаваемого окна
+# Размеры создаваемого окна
 window_width = 400
 window_height = 300
 root.geometry(f"{window_width}x{window_height}")
 
-# Создание кнопоко и их действия
+# Создание кнопок и их действий
 routes_button = tk.Button(root, text="Маршруты", command=open_routes)
 tickets_button = tk.Button(root, text="Билеты", command=open_tickets)
 items_button = tk.Button(root, text="Список вещей", command=open_items)
@@ -138,3 +210,4 @@ budget_button.pack()
 exit_button.pack()
 
 root.mainloop()
+
