@@ -52,21 +52,19 @@ def open_tickets():
     tickets_window = tk.Toplevel(root)
     tickets_window.title("Билеты")
 
-    # Добавьте код для отображения билетов
+
 
 def open_items():
     items_window = tk.Toplevel(root)
     items_window.title("Список вещей")
 
-    # Добавьте код для отображения списка вещей
+
 
 def open_budget():
     budget_window = tk.Toplevel(root)
     budget_window.title("Бюджет")
 
-    # Добавьте код для отображения бюджета
 
-# Остальной код остается таким же
 
 root = tk.Tk()
 root.title("Планирование поездки")
