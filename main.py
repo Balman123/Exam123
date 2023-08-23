@@ -9,6 +9,9 @@ items_opened = False
 budget_opened = False
 add_route_window_opened = False
 add_ticket_window_opened = False
+add_item_window_opened = False
+
+
 
 # Функция для сохранения данных в JSON файл
 def save_data_to_json(data, filename):
@@ -172,7 +175,64 @@ def open_items():
         items_window = tk.Toplevel(root)
         items_window.title("Список вещей")
 
+        items_label = tk.Label(items_window, text="Список вещей:")
+        items_label.pack()
+
+        global items_listbox
+        items_listbox = tk.Listbox(items_window)
+        items_listbox.pack()
+
+        def refresh_items_listbox():
+            items_listbox.delete(0, tk.END)
+            with open("data.json", "r") as file:
+                items = json.load(file)
+                for item in items:
+                    items_listbox.insert(tk.END, item)
+
+        refresh_items_listbox()
+
+        def add_item():
+            global add_item_window_opened
+            if not add_item_window_opened:
+                add_item_window = tk.Toplevel(items_window)
+                add_item_window.title("Добавить вещь")
+                add_item_window_opened = True
+
+                item_label = tk.Label(add_item_window, text="Вещь:")
+                item_label.pack()
+
+                global item_entry
+                item_entry = tk.Entry(add_item_window)
+                item_entry.pack()
+
+                def save_item():
+                    item = item_entry.get()
+                    if item:
+                        add_item_to_json(item)
+                        refresh_items_listbox()  # Обновляем список вещей после добавления
+                        add_item_window.destroy()
+
+                save_button = tk.Button(add_item_window, text="Сохранить", command=save_item)
+                save_button.pack()
+
+        add_button = tk.Button(items_window, text="Добавить вещь", command=add_item)
+        add_button.pack()
+
         items_opened = True
+
+        # Функция для добавления вещи в JSON файл
+        def add_item_to_json(item):
+            if not os.path.exists("data.json"):
+                with open("data.json", "w") as file:
+                    json.dump([], file)
+
+            with open("data.json", "r") as file:
+                items = json.load(file)
+
+            items.append(item)
+
+            with open("data.json", "w") as file:
+                json.dump(items, file)
 
 # Функция которая добавляет функционал кнопке "Бюджет"
 def open_budget():
@@ -208,6 +268,9 @@ tickets_button.pack()
 items_button.pack()
 budget_button.pack()
 exit_button.pack()
+
+items_listbox = tk.Listbox(root)
+items_listbox.pack()
 
 root.mainloop()
 
